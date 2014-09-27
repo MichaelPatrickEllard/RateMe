@@ -13,6 +13,8 @@
 		E3B2B61419D746EB00AB7079 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E3B2B61319D746EB00AB7079 /* Images.xcassets */; };
 		E3B2B61719D746EB00AB7079 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = E3B2B61519D746EB00AB7079 /* LaunchScreen.xib */; };
 		E3B2B62319D746EB00AB7079 /* RateMeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3B2B62219D746EB00AB7079 /* RateMeTests.swift */; };
+		E3E5418E19D748AE001281E3 /* RateMeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3E5418C19D748AE001281E3 /* RateMeViewController.swift */; };
+		E3E5418F19D748AE001281E3 /* RateMeViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E3E5418D19D748AE001281E3 /* RateMeViewController.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +38,8 @@
 		E3B2B61C19D746EB00AB7079 /* RateMeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RateMeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E3B2B62119D746EB00AB7079 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E3B2B62219D746EB00AB7079 /* RateMeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateMeTests.swift; sourceTree = "<group>"; };
+		E3E5418C19D748AE001281E3 /* RateMeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RateMeViewController.swift; sourceTree = "<group>"; };
+		E3E5418D19D748AE001281E3 /* RateMeViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = RateMeViewController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,6 +83,8 @@
 			children = (
 				E3B2B60C19D746EB00AB7079 /* AppDelegate.swift */,
 				E3B2B60E19D746EB00AB7079 /* ViewController.swift */,
+				E3E5418C19D748AE001281E3 /* RateMeViewController.swift */,
+				E3E5418D19D748AE001281E3 /* RateMeViewController.xib */,
 				E3B2B61019D746EB00AB7079 /* Main.storyboard */,
 				E3B2B61319D746EB00AB7079 /* Images.xcassets */,
 				E3B2B61519D746EB00AB7079 /* LaunchScreen.xib */,
@@ -194,6 +200,7 @@
 			files = (
 				E3B2B61219D746EB00AB7079 /* Main.storyboard in Resources */,
 				E3B2B61719D746EB00AB7079 /* LaunchScreen.xib in Resources */,
+				E3E5418F19D748AE001281E3 /* RateMeViewController.xib in Resources */,
 				E3B2B61419D746EB00AB7079 /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -212,6 +219,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E3E5418E19D748AE001281E3 /* RateMeViewController.swift in Sources */,
 				E3B2B60F19D746EB00AB7079 /* ViewController.swift in Sources */,
 				E3B2B60D19D746EB00AB7079 /* AppDelegate.swift in Sources */,
 			);
@@ -407,6 +415,7 @@
 				E3B2B62819D746EB00AB7079 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		E3B2B62919D746EB00AB7079 /* Build configuration list for PBXNativeTarget "RateMeTests" */ = {
 			isa = XCConfigurationList;
@@ -415,6 +424,7 @@
 				E3B2B62B19D746EB00AB7079 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

@@ -19,9 +19,19 @@ class ViewController: UIViewController {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    
-    
+   
 
+    @IBAction func rateButtonPressed(sender: AnyObject) {
+        
+        if RateMeViewController.shouldRate() {
+            
+            let rateMeVC = RateMeViewController()
+            
+            presentViewController(rateMeVC, animated: true, completion: nil)
+            
+        }
+        
+    }
 
 }
 
