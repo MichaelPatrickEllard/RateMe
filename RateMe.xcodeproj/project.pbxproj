@@ -28,6 +28,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		E3241D0B19D77C3D00D9A830 /* License.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = License.txt; sourceTree = "<group>"; };
 		E390BE2219D77241003DA8D6 /* Notes - About this Project.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = "Notes - About this Project.rtf"; sourceTree = "<group>"; };
 		E3B2B60719D746EB00AB7079 /* RateMe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RateMe.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E3B2B60B19D746EB00AB7079 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -65,6 +66,7 @@
 			isa = PBXGroup;
 			children = (
 				E390BE2219D77241003DA8D6 /* Notes - About this Project.rtf */,
+				E3241D0B19D77C3D00D9A830 /* License.txt */,
 				E3B2B60919D746EB00AB7079 /* RateMe */,
 				E3B2B61F19D746EB00AB7079 /* RateMeTests */,
 				E3B2B60819D746EB00AB7079 /* Products */,
