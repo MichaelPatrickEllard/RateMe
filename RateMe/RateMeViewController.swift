@@ -6,24 +6,58 @@
 //  Copyright (c) 2014 Rescue Mission Software. All rights reserved.
 //
 
+enum RateMeNSCoderKeys : String {
+    case URLString = "URLString"
+}
+
 
 import UIKit
 
-class RateMeViewController: UIViewController {
+class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
+    
+    // MARK: Instance Variables
+    
+    var rulesAllowRating : Bool? = nil
+
+    var rulesURL : String
+    
+    var shouldRate : Bool {
+        
+        var returnValue = false
+        
+        if rulesUpdated && rulesAllowRating == .Some(true) {
+            
+            returnValue = true
+        }
+            
+        return returnValue
+    }
+    
+    private var rulesUpdated : Bool = false
+    private var rulesData : NSMutableData!
+
     
     // MARK: Initializers & Deinitalizers
     
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: NSBundle?) {
-        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-    }
+    // TODO: the methods for encoding and decoding the view controller should be tested.
+    
 
     required init(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
         
-        // TODO: Update if needed
+        self.rulesURL = aDecoder.decodeObjectOfClass(NSString.classForCoder(), forKey: RateMeNSCoderKeys.URLString.toRaw()) as String
+        
+        super.init(coder: aDecoder)
     }
     
-    override init() {
+    override func encodeWithCoder(aCoder: NSCoder) {
+        super.encodeWithCoder(aCoder)
+        aCoder.encodeObject(self.rulesURL, forKey: RateMeNSCoderKeys.URLString.toRaw())
+    }
+    
+    init(rulesURL: String) {
+        
+        self.rulesURL = rulesURL
+        
         super.init(nibName: "RateMeViewController", bundle: NSBundle.mainBundle())
     }
     
@@ -49,16 +83,56 @@ class RateMeViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
-
     // MARK: Custom Methods
-    
-    class func shouldRate() -> Bool {
-        return true
-    }
     
     @IBAction func dismiss(sender: AnyObject) {
         
         self.presentingViewController?.dismissViewControllerAnimated(true, completion: nil)
+    }
+    
+    func checkRules() {
+        
+        let url = NSURL.URLWithString(rulesURL)
+        
+        let urlRequest = NSURLRequest(URL: url)
+        
+        let connection = NSURLConnection(request: urlRequest, delegate: self)
+        
+    }
+    
+    // MARK: NSURLConnectionDelegate && NSURLConnectionDataDelegate Methods
+    
+    func connection(connection: NSURLConnection!,
+        didReceiveResponse response: NSURLResponse!) {
+            
+            rulesData = NSMutableData()
+            
+    }
+    
+    
+    func connection(connection: NSURLConnection!,
+        didReceiveData data: NSData!)
+    {
+        rulesData.appendData(data)
+    }
+    
+    func connectionDidFinishLoading(connection: NSURLConnection!) {
+        
+        rulesUpdated = true
+        
+        let dataString = NSString(data: rulesData, encoding: 4)
+        
+        NSLog("I got the data!  It looks like this: '%@'", dataString)
+        
+        if dataString == "YES" {
+            rulesAllowRating = true
+        }
+        
+    }
+    
+    func connection(connection: NSURLConnection!,
+        didFailWithError error: NSError!) {
+            NSLog("Bad news! The request for RateMe rules failed with the following error: %@", error)
     }
 
 
