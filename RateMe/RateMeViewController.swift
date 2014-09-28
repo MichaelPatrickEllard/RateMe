@@ -6,8 +6,24 @@
 //  Copyright (c) 2014 Rescue Mission Software. All rights reserved.
 //
 
-enum RateMeNSCoderKeys : String {
-    case URLString = "URLString"
+private enum RateMeNSCoderKeys : String {
+    case URLString = "RateMeURLString"
+    case AppID = "RateMeAppID"
+}
+
+// AskLater works out to zero, which is also what we'll get from NSUserDefaults is no rating has ever been set.  Arguably, it would be more Swift-like to have a distinction between "NeverRated" and "AskLater"
+
+
+private enum RateMeRatingResponse : Int {
+    case AskLater
+    case Rated
+    case StopAsking
+}
+
+private enum RateMeUserDefaultsKeys : String {
+    case LastVersionRated = "RateMeLastVersionRated"
+    case DateOfLastRating = "RateMeDateLastRated"
+    case LastRatingResponse = "RateMeLastResponse"
 }
 
 
@@ -35,6 +51,7 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
     
     private var rulesUpdated : Bool = false
     private var rulesData : NSMutableData!
+    private var appID : String
 
     
     // MARK: Initializers & Deinitalizers
@@ -45,19 +62,20 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
     required init(coder aDecoder: NSCoder) {
         
         self.rulesURL = aDecoder.decodeObjectOfClass(NSString.classForCoder(), forKey: RateMeNSCoderKeys.URLString.toRaw()) as String
-        
+        self.appID = aDecoder.decodeObjectOfClass(NSString.classForCoder(), forKey: RateMeNSCoderKeys.AppID.toRaw()) as String
         super.init(coder: aDecoder)
     }
     
     override func encodeWithCoder(aCoder: NSCoder) {
         super.encodeWithCoder(aCoder)
         aCoder.encodeObject(self.rulesURL, forKey: RateMeNSCoderKeys.URLString.toRaw())
+        aCoder.encodeObject(self.appID, forKey: RateMeNSCoderKeys.AppID.toRaw())
     }
     
-    init(rulesURL: String) {
+    init(rulesURL: String, appID: String) {
         
         self.rulesURL = rulesURL
-        
+        self.appID = appID
         super.init(nibName: "RateMeViewController", bundle: NSBundle.mainBundle())
     }
     
@@ -85,7 +103,38 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
     
     // MARK: Custom Methods
     
-    @IBAction func dismiss(sender: AnyObject) {
+    @IBAction func rateApp() {
+        
+        NSLog("Now rating the app")
+        
+        let ratingAddress = "itms-apps://itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?type=Purple+Software&id=" + appID
+        
+        //      The URL used above is the best choice for iOS 7.1 and iOS 8.
+        //TODO: For iOS 7.0, this URL is recommended: "itms-apps://itunes.apple.com/app/id#########"
+        
+        let ratingURL = NSURL(string: ratingAddress)
+        
+        UIApplication.sharedApplication().openURL(ratingURL)
+        
+        recordRatingResponse(.Rated)
+        dismiss()
+    }
+    
+    @IBAction func askLater() {
+        
+        NSLog("User said to ask later")
+        recordRatingResponse(.AskLater)
+        dismiss()
+    }
+    
+    @IBAction func stopAsking() {
+        
+        NSLog("User said to stop asking")
+        recordRatingResponse(.StopAsking)
+        dismiss()
+    }
+    
+    private func dismiss() {
         
         self.presentingViewController?.dismissViewControllerAnimated(true, completion: nil)
     }
@@ -97,6 +146,20 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
         let urlRequest = NSURLRequest(URL: url)
         
         let connection = NSURLConnection(request: urlRequest, delegate: self)
+        
+    }
+    
+    private func recordRatingResponse(response: RateMeRatingResponse) {
+        
+        let defaults = NSUserDefaults.standardUserDefaults()
+        
+        let device = UIDevice.currentDevice()
+        
+        let versionString = NSBundle.mainBundle().objectForInfoDictionaryKey("CFBundleShortVersionString") as String
+        
+        defaults.setObject(NSDate(), forKey: RateMeUserDefaultsKeys.DateOfLastRating.toRaw())
+        defaults.setObject(versionString, forKey: RateMeUserDefaultsKeys.LastVersionRated.toRaw())
+        defaults.setInteger(response.toRaw(), forKey: RateMeUserDefaultsKeys.LastRatingResponse.toRaw())
         
     }
     
