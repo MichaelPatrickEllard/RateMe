@@ -9,7 +9,7 @@
 import UIKit
 
 // TODO: The URL for a sample rules file.  Replace this with the address of the rules file that you'll be using.
-let rateRulesURL = "http://www.rescuemissionsoftware.com/XXXX0000/SimpleRuleNo.txt"
+let rateRulesURL = "http://www.rescuemissionsoftware.com/XXXX0000/SimpleRuleYes.txt"
 
 // TODO: The app ID for the Meetup app.  Replace this with the app ID for your app.
 let appID = "375990038"
