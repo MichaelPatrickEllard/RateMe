@@ -33,6 +33,9 @@
                             <constraint firstAttribute="centerY" secondItem="KSq-5V-Owh" secondAttribute="centerY" id="dbh-L7-7Dx"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="rateButton" destination="KSq-5V-Owh" id="zr2-Hc-dxS"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>

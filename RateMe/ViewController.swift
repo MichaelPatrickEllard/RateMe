@@ -9,30 +9,41 @@
 import UIKit
 
 // TODO: The URL for a sample rules file.  Replace this with the address of the rules file that you'll be using.
-let rateRulesURL = "http://www.rescuemissionsoftware.com/XXXX0000/SimpleRuleYes.txt"
+let rateRulesURL = "http://www.rescuemissionsoftware.com/XXXX0000/SimpleRuleNo.txt"
 
 // TODO: The app ID for the Meetup app.  Replace this with the app ID for your app.
 let appID = "375990038"
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, RateMeDelegate {
+    
+    @IBOutlet var rateButton: UIButton!
     
     let rateMeVC = RateMeViewController(rulesURL: rateRulesURL, appID: appID)
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        rateButton.alpha = 0
+        
+        rateMeVC.delegate = self
         rateMeVC.checkRules()
+        
     }
 
     @IBAction func rateButtonPressed(sender: AnyObject) {
         
-        if rateMeVC.shouldRate {
+        presentViewController(rateMeVC, animated: true, completion: nil)
+        
+    }
+    
+    // Mark: RateMeDelegate Methods
+    
+    func readyToRate() {
+        
+        UIView.animateWithDuration(2.0) {
             
-            presentViewController(rateMeVC, animated: true, completion: nil)
-            
-        } else {
-            
-            NSLog("Sorry, but the Rate Me view controller told me not to rate at this time")
+            self.rateButton.alpha = 1
+        
         }
         
     }

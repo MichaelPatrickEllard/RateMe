@@ -6,9 +6,19 @@
 //  Copyright (c) 2014 Rescue Mission Software. All rights reserved.
 //
 
+@objc protocol RateMeDelegate {
+    
+    optional func readyToRate() -> ()
+    optional func rated() -> ()
+    optional func askLater() -> ()
+    optional func stopAsking() -> ()
+    
+}
+
 private enum RateMeNSCoderKeys : String {
     case URLString = "RateMeURLString"
     case AppID = "RateMeAppID"
+    case Delegate = "RateMeDelegate"
 }
 
 // AskLater works out to zero, which is also what we'll get from NSUserDefaults is no rating has ever been set.  Arguably, it would be more Swift-like to have a distinction between "NeverRated" and "AskLater"
@@ -36,6 +46,8 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
     var rulesAllowRating : Bool? = nil
 
     var rulesURL : String
+
+    weak var delegate : RateMeDelegate?
     
     var shouldRate : Bool {
         
@@ -63,6 +75,8 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
         
         self.rulesURL = aDecoder.decodeObjectOfClass(NSString.classForCoder(), forKey: RateMeNSCoderKeys.URLString.toRaw()) as String
         self.appID = aDecoder.decodeObjectOfClass(NSString.classForCoder(), forKey: RateMeNSCoderKeys.AppID.toRaw()) as String
+        self.delegate = aDecoder.decodeObjectForKey(RateMeNSCoderKeys.Delegate.toRaw()) as? RateMeDelegate
+
         super.init(coder: aDecoder)
     }
     
@@ -70,6 +84,10 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
         super.encodeWithCoder(aCoder)
         aCoder.encodeObject(self.rulesURL, forKey: RateMeNSCoderKeys.URLString.toRaw())
         aCoder.encodeObject(self.appID, forKey: RateMeNSCoderKeys.AppID.toRaw())
+        
+        if let rmDelegate = delegate {
+            aCoder.encodeConditionalObject(rmDelegate, forKey: RateMeNSCoderKeys.Delegate.toRaw())
+        }
     }
     
     init(rulesURL: String, appID: String) {
@@ -118,6 +136,8 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
         
         recordRatingResponse(.Rated)
         dismiss()
+        
+        delegate?.rated?()
     }
     
     @IBAction func askLater() {
@@ -125,6 +145,8 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
         NSLog("User said to ask later")
         recordRatingResponse(.AskLater)
         dismiss()
+        
+        delegate?.askLater?()
     }
     
     @IBAction func stopAsking() {
@@ -132,6 +154,8 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
         NSLog("User said to stop asking")
         recordRatingResponse(.StopAsking)
         dismiss()
+        
+        delegate?.stopAsking?()
     }
     
     private func dismiss() {
@@ -163,7 +187,7 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
         
     }
     
-    // MARK: NSURLConnectionDelegate && NSURLConnectionDataDelegate Methods
+    // MARK: NSURLConnectionDelegate and NSURLConnectionDataDelegate Methods
     
     func connection(connection: NSURLConnection!,
         didReceiveResponse response: NSURLResponse!) {
@@ -189,6 +213,8 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
         
         if dataString == "YES" {
             rulesAllowRating = true
+            
+            delegate?.readyToRate?()
         }
         
     }
