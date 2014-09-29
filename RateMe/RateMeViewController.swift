@@ -51,7 +51,7 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
     
     // MARK: Instance Variables
     
-    private(set) var rulesAllowRating : Bool? = nil
+    private var rulesAllowRating : Bool? = nil
     private(set) var rulesStatus = RateMeRulesStatus.NotRequested
     private(set) var rulesReceivedTimestamp : NSDate? = nil
 
