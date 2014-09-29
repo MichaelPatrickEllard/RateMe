@@ -252,14 +252,25 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
                         
                         rulesAllowRating = defaultRule
                         
+                    } else {
+                        
+                        error = NSError(domain: "Getting Version Info from Rules Dictionary", code: 2, userInfo: rulesDict)
                     }
+                    
+                    if rulesAllowRating != nil {
                 
-                    rulesStatus = .RulesReceived
-                    rulesReceivedTimestamp = NSDate()
+                        rulesStatus = .RulesReceived
+                        rulesReceivedTimestamp = NSDate()
+                        
+                    }
                     
                     if rulesAllowRating == .Some(true) {
                         delegate?.readyToRate?()
                     }
+                    
+                } else {
+                    
+                    error = NSError(domain: "Parsing Rules Dictionary", code: 1, userInfo: rulesDict)
                     
                 }
                 
