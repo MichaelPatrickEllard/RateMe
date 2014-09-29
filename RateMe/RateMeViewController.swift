@@ -9,6 +9,7 @@
 @objc protocol RateMeDelegate {
     
     optional func readyToRate() -> ()
+    optional func rulesRequestFailed(error : NSError!) -> ()
     optional func rated() -> ()
     optional func askLater() -> ()
     optional func stopAsking() -> ()
@@ -130,9 +131,7 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
     // MARK: Custom Methods
     
     @IBAction func rateApp() {
-        
-        NSLog("Now rating the app")
-        
+            
         let ratingAddress = "itms-apps://itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?type=Purple+Software&id=" + appID
         
         //      The URL used above is the best choice for iOS 7.1 and iOS 8.
@@ -150,7 +149,6 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
     
     @IBAction func askLater() {
         
-        NSLog("User said to ask later")
         recordRatingResponse(.AskLater)
         dismiss()
         
@@ -159,7 +157,6 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
     
     @IBAction func stopAsking() {
         
-        NSLog("User said to stop asking")
         recordRatingResponse(.StopAsking)
         dismiss()
         
@@ -233,8 +230,6 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
 
         let dataString = NSString(data: rulesData, encoding: 4)
         
-        NSLog("I got the data!  It looks like this: '%@'", dataString)
-        
         rulesAllowRating = dataString == "YES" ? true : false
         rulesStatus = .RulesReceived
         rulesReceivedTimestamp = NSDate()
@@ -247,9 +242,10 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
     
     func connection(connection: NSURLConnection!,
         didFailWithError error: NSError!) {
-            NSLog("Bad news! The request for RateMe rules failed with the following error: %@", error)
             
             rulesStatus = .RequestFailed
+
+            delegate?.rulesRequestFailed?(error)
     }
 
 

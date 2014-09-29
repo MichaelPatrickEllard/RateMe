@@ -36,7 +36,8 @@ class ViewController: UIViewController, RateMeDelegate {
         
     }
     
-    // Mark: RateMeDelegate Methods
+    //  Mark: RateMeDelegate Methods.  
+    //  All of these methods are optional.  You don't have to implement any of them if you don't want to.
     
     func readyToRate() {
         
@@ -46,6 +47,26 @@ class ViewController: UIViewController, RateMeDelegate {
         
         }
         
+        NSLog("RateMe View Controller is ready to rate")
+        
+    }
+    
+    func rulesRequestFailed(error : NSError!) {
+        
+        NSLog("The request for RateMe rules failed with the following error: %@", error)
+        
+    }
+    
+    func rated() {
+        NSLog("User chose to rate the app.")
+    }
+    
+    func askLater() {
+        NSLog("User said to ask later")
+    }
+    
+    func stopAsking() {
+        NSLog("User said to stop asking")
     }
 
 }
