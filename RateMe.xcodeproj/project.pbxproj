@@ -29,6 +29,7 @@
 
 /* Begin PBXFileReference section */
 		E3241D0B19D77C3D00D9A830 /* License.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = License.txt; sourceTree = "<group>"; };
+		E3262AA819D9FEB4008D2C93 /* SampleRateMeRules.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = SampleRateMeRules.json; sourceTree = "<group>"; };
 		E390BE2219D77241003DA8D6 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		E3B2B60719D746EB00AB7079 /* RateMe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RateMe.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E3B2B60B19D746EB00AB7079 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -85,6 +86,7 @@
 		E3B2B60919D746EB00AB7079 /* RateMe */ = {
 			isa = PBXGroup;
 			children = (
+				E3262AA819D9FEB4008D2C93 /* SampleRateMeRules.json */,
 				E3B2B60C19D746EB00AB7079 /* AppDelegate.swift */,
 				E3B2B60E19D746EB00AB7079 /* ViewController.swift */,
 				E3E5418C19D748AE001281E3 /* RateMeViewController.swift */,

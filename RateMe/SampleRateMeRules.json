@@ -1,0 +1,7 @@
+{"rulesVersion":"0.1",
+ "shouldRateByAppVersion":{
+  "1.0":true,
+  "1.1":false,
+  "default":true
+ }
+}

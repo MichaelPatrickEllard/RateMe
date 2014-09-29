@@ -227,15 +227,51 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
     }
     
     func connectionDidFinishLoading(connection: NSURLConnection!) {
-
-        let dataString = NSString(data: rulesData, encoding: 4)
         
-        rulesAllowRating = dataString == "YES" ? true : false
-        rulesStatus = .RulesReceived
-        rulesReceivedTimestamp = NSDate()
+        var error : NSError?
         
-        if rulesAllowRating == .Some(true) {
-            delegate?.readyToRate?()
+        let jsonObject : AnyObject? = NSJSONSerialization.JSONObjectWithData(rulesData, options:NSJSONReadingOptions.AllowFragments, error: &error)
+        
+        if error == nil {
+            
+            if let rulesDict = jsonObject as? NSDictionary {
+                
+                if let versionRules = rulesDict["shouldRateByAppVersion"] as? Dictionary<String, Bool> {
+            
+                    let appVersionString = NSBundle.mainBundle().objectForInfoDictionaryKey("CFBundleShortVersionString") as String
+                    
+                    //  If we have a rule for this specific version, use it.  Otherwise use the default rule.
+            
+                    let versionRuleForRating : Bool? = versionRules[appVersionString]
+                    
+                    if let versionRule = versionRuleForRating {
+                        
+                        rulesAllowRating = versionRule
+                        
+                    } else if let defaultRule = versionRules["default"] {
+                        
+                        rulesAllowRating = defaultRule
+                        
+                    }
+                
+                    rulesStatus = .RulesReceived
+                    rulesReceivedTimestamp = NSDate()
+                    
+                    if rulesAllowRating == .Some(true) {
+                        delegate?.readyToRate?()
+                    }
+                    
+                }
+                
+            }
+            
+        }
+        
+        if rulesStatus != .RulesReceived {  // We failed one of the tests above
+            
+            rulesStatus = .RequestFailed
+            delegate?.rulesRequestFailed?(error)
+            
         }
         
     }
