@@ -36,6 +36,13 @@ private enum RateMeUserDefaultsKeys : String {
     case LastRatingResponse = "RateMeLastResponse"
 }
 
+enum RateMeRulesStatus {
+    case NotRequested
+    case RequestInProgress
+    case RulesReceived
+    case RequestFailed
+}
+
 
 import UIKit
 
@@ -43,7 +50,9 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
     
     // MARK: Instance Variables
     
-    var rulesAllowRating : Bool? = nil
+    private(set) var rulesAllowRating : Bool? = nil
+    private(set) var rulesStatus = RateMeRulesStatus.NotRequested
+    private(set) var rulesReceivedTimestamp : NSDate? = nil
 
     var rulesURL : String
 
@@ -53,7 +62,7 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
         
         var returnValue = false
         
-        if rulesUpdated && rulesAllowRating == .Some(true) {
+        if rulesStatus == .RulesReceived && rulesAllowRating == .Some(true) {
             
             returnValue = true
         }
@@ -61,9 +70,8 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
         return returnValue
     }
     
-    private var rulesUpdated : Bool = false
     private var rulesData : NSMutableData!
-    private var appID : String
+    let appID : String
 
     
     // MARK: Initializers & Deinitalizers
@@ -165,13 +173,29 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
     
     func checkRules() {
         
-        let url = NSURL.URLWithString(rulesURL)
-        
-        //  Setting a shorter than usual timeout here.  We don't want to frustrate the user.  If we can't get the data in 10 seconds, we dont' want to bother them with a rating link which might take an extended amount of time to load.  Arguably, this timeout should be even shorter.
-        
-        let urlRequest = NSURLRequest(URL: url, cachePolicy: .ReloadIgnoringLocalCacheData, timeoutInterval: 10)
-        
-        let connection = NSURLConnection(request: urlRequest, delegate: self)
+        switch (rulesStatus) {
+            
+            case .RequestInProgress:
+                
+                break   //  There's already a request going on.
+                
+            default:
+                
+                    //  If we're starting a new rules request, let's forget about the results of any previous requests.
+                
+                    rulesStatus = .RequestInProgress
+                    rulesAllowRating = nil
+                    rulesReceivedTimestamp = nil
+                    
+                    let url = NSURL.URLWithString(rulesURL)
+                    
+                    //  Setting a shorter than usual timeout here.  We don't want to frustrate the user.  If we can't get the data in 5 seconds, we dont' want to bother them with a rating link which might take longer than that to load.
+                    
+                    let urlRequest = NSURLRequest(URL: url, cachePolicy: .ReloadIgnoringLocalCacheData, timeoutInterval: 5)
+                    
+                    let connection = NSURLConnection(request: urlRequest, delegate: self)
+                
+        }
         
     }
     
@@ -206,16 +230,16 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
     }
     
     func connectionDidFinishLoading(connection: NSURLConnection!) {
-        
-        rulesUpdated = true
-        
+
         let dataString = NSString(data: rulesData, encoding: 4)
         
         NSLog("I got the data!  It looks like this: '%@'", dataString)
         
-        if dataString == "YES" {
-            rulesAllowRating = true
-            
+        rulesAllowRating = dataString == "YES" ? true : false
+        rulesStatus = .RulesReceived
+        rulesReceivedTimestamp = NSDate()
+        
+        if rulesAllowRating == .Some(true) {
             delegate?.readyToRate?()
         }
         
@@ -224,6 +248,8 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
     func connection(connection: NSURLConnection!,
         didFailWithError error: NSError!) {
             NSLog("Bad news! The request for RateMe rules failed with the following error: %@", error)
+            
+            rulesStatus = .RequestFailed
     }
 
 
