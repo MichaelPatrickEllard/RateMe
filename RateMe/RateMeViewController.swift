@@ -167,7 +167,9 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
         
         let url = NSURL.URLWithString(rulesURL)
         
-        let urlRequest = NSURLRequest(URL: url)
+        //  Setting a shorter than usual timeout here.  We don't want to frustrate the user.  If we can't get the data in 10 seconds, we dont' want to bother them with a rating link which might take an extended amount of time to load.  Arguably, this timeout should be even shorter.
+        
+        let urlRequest = NSURLRequest(URL: url, cachePolicy: .ReloadIgnoringLocalCacheData, timeoutInterval: 10)
         
         let connection = NSURLConnection(request: urlRequest, delegate: self)
         
