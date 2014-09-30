@@ -8,7 +8,7 @@
 
 @objc protocol RateMeDelegate {
     
-    optional func readyToRate() -> ()
+    optional func rulesRetrieved() -> ()
     optional func rulesRequestFailed(error : NSError!) -> ()
     optional func rated() -> ()
     optional func askLater() -> ()
@@ -22,10 +22,8 @@ private enum RateMeNSCoderKeys : String {
     case Delegate = "RateMeDelegate"
 }
 
-// AskLater works out to zero, which is also what we'll get from NSUserDefaults is no rating has ever been set.  Arguably, it would be more Swift-like to have a distinction between "NeverRated" and "AskLater"
-
-
 private enum RateMeRatingResponse : Int {
+    case NeverAsked = 0
     case AskLater
     case Rated
     case StopAsking
@@ -54,10 +52,18 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
     private var rulesAllowRating : Bool? = nil
     private(set) var rulesStatus = RateMeRulesStatus.NotRequested
     private(set) var rulesReceivedTimestamp : NSDate? = nil
-
+    
+    private var rulesData : NSMutableData!
+    
     var rulesURL : String
 
     weak var delegate : RateMeDelegate?
+    
+    let appID : String
+    
+    var minimumIntervalAfterAskLater : NSTimeInterval = 60 * 60 * 24 * 2       //  2 days in seconds
+    var minimumIntervalAfterRating : NSTimeInterval = 60 * 60 * 24 * 30        //  30 days in seconds
+    var minimumIntervalAfterStopAsking : NSTimeInterval = 60 * 60 * 24 * 90    //  90 days in seconds
     
     var shouldRate : Bool {
         
@@ -65,14 +71,63 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
         
         if rulesStatus == .RulesReceived && rulesAllowRating == .Some(true) {
             
-            returnValue = true
+            let currentVersion = NSBundle.mainBundle().objectForInfoDictionaryKey("CFBundleShortVersionString") as String
+
+            let defaults = NSUserDefaults.standardUserDefaults()
+            
+            let defaultsLastRatedVersion = defaults.objectForKey(RateMeUserDefaultsKeys.LastVersionRated.toRaw()) as String?
+            
+            //  Switch statements on tuples don't seem to like optionals. To make the code tidy, there has to be some string value for lastRatedVersion, even if it's an empty string. This doesn't feel Swift-like, and I would welcome suggestions about how to make it better.
+            
+            let lastRatedVersion = defaultsLastRatedVersion == nil ? "" : defaultsLastRatedVersion!
+            
+            let responseValueFromDefaults = defaults.integerForKey(RateMeUserDefaultsKeys.LastRatingResponse.toRaw())
+            
+            if let lastResponse = RateMeRatingResponse.fromRaw(responseValueFromDefaults) {
+            
+                switch (lastResponse, lastRatedVersion) {
+                    
+                    case (.NeverAsked, _):
+                    
+                        returnValue = true
+                    
+                    case (.AskLater, _):
+                    
+                        if sufficientTimeSinceLastResponse(minimumIntervalAfterAskLater) {
+                            
+                            returnValue = true
+                        }
+                    
+                    case (.Rated, currentVersion), (.StopAsking, currentVersion):
+                        
+                        break   // Do nothing. Wait for a new version to ask again.
+                    
+                    case (.Rated, _):
+                    
+                        if sufficientTimeSinceLastResponse(minimumIntervalAfterRating) {
+                            
+                            returnValue = true
+                        }
+                    
+                    case (.StopAsking, _):
+                    
+                        if sufficientTimeSinceLastResponse(minimumIntervalAfterStopAsking) {
+                            
+                            returnValue = true
+                        }
+                    
+                }
+                
+            } else {
+                
+                NSLog("Unexpected Last Rating Response in NSUserDefaults of %ld", responseValueFromDefaults)
+                
+            }
+
         }
             
         return returnValue
     }
-    
-    private var rulesData : NSMutableData!
-    let appID : String
 
     
     // MARK: Initializers & Deinitalizers
@@ -178,19 +233,19 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
                 
             default:
                 
-                    //  If we're starting a new rules request, let's forget about the results of any previous requests.
+                //  If we're starting a new rules request, let's forget about the results of any previous requests.
+            
+                rulesStatus = .RequestInProgress
+                rulesAllowRating = nil
+                rulesReceivedTimestamp = nil
                 
-                    rulesStatus = .RequestInProgress
-                    rulesAllowRating = nil
-                    rulesReceivedTimestamp = nil
-                    
-                    let url = NSURL.URLWithString(rulesURL)
-                    
-                    //  Setting a shorter than usual timeout here.  We don't want to frustrate the user.  If we can't get the data in 5 seconds, we dont' want to bother them with a rating link which might take longer than that to load.
-                    
-                    let urlRequest = NSURLRequest(URL: url, cachePolicy: .ReloadIgnoringLocalCacheData, timeoutInterval: 5)
-                    
-                    let connection = NSURLConnection(request: urlRequest, delegate: self)
+                let url = NSURL.URLWithString(rulesURL)
+                
+                //  Setting a shorter than usual timeout here.  We don't want to frustrate the user.  If we can't get the data in 5 seconds, we dont' want to bother them with a rating link which might take longer than that to load.
+                
+                let urlRequest = NSURLRequest(URL: url, cachePolicy: .ReloadIgnoringLocalCacheData, timeoutInterval: 5)
+                
+                let connection = NSURLConnection(request: urlRequest, delegate: self)
                 
         }
         
@@ -207,6 +262,26 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
         defaults.setObject(NSDate(), forKey: RateMeUserDefaultsKeys.DateOfLastRating.toRaw())
         defaults.setObject(versionString, forKey: RateMeUserDefaultsKeys.LastVersionRated.toRaw())
         defaults.setInteger(response.toRaw(), forKey: RateMeUserDefaultsKeys.LastRatingResponse.toRaw())
+        
+    }
+    
+    private func sufficientTimeSinceLastResponse(requiredTimeInterval: NSTimeInterval) -> Bool {
+        
+        var returnValue = false
+        
+        let defaults = NSUserDefaults.standardUserDefaults()
+        
+        if let lastResponseDate = defaults.objectForKey(RateMeUserDefaultsKeys.DateOfLastRating.toRaw()) as? NSDate {
+            
+            if NSDate().timeIntervalSinceDate(lastResponseDate) > requiredTimeInterval {
+                
+                returnValue = true
+                
+            }
+            
+        }
+        
+        return returnValue
         
     }
     
@@ -265,7 +340,7 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
                     }
                     
                     if rulesAllowRating == .Some(true) {
-                        delegate?.readyToRate?()
+                        delegate?.rulesRetrieved?()
                     }
                     
                 } else {

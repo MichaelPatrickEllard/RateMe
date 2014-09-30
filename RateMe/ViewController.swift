@@ -39,15 +39,19 @@ class ViewController: UIViewController, RateMeDelegate {
     //  Mark: RateMeDelegate Methods.  
     //  All of these methods are optional.  You don't have to implement any of them if you don't want to.
     
-    func readyToRate() {
+    func rulesRetrieved() {
         
-        UIView.animateWithDuration(2.0) {
+        NSLog("RateMe View Controller has retrieved valid rules")
+        
+        if rateMeVC.shouldRate {
+        
+            UIView.animateWithDuration(2.0) {
+                
+                self.rateButton.alpha = 1
             
-            self.rateButton.alpha = 1
+            }
         
         }
-        
-        NSLog("RateMe View Controller is ready to rate")
         
     }
     
