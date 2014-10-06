@@ -17,7 +17,7 @@ One unique feature of this rating system is that it also checks a remote server 
 SampleRateMeRules.json is included in the project and is an example of what a rating file might look like:
 
     {"rulesVersion":"0.1",
-        "shouldRateByAppVersion":{
+     "shouldRateByAppVersion":{
         "1.0":true,
         "1.1":false,
         "default":true
