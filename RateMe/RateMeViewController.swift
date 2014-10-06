@@ -139,7 +139,7 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
         
         self.rulesURL = aDecoder.decodeObjectOfClass(NSString.classForCoder(), forKey: RateMeNSCoderKeys.URLString.toRaw()) as String
         self.appID = aDecoder.decodeObjectOfClass(NSString.classForCoder(), forKey: RateMeNSCoderKeys.AppID.toRaw()) as String
-        self.delegate = aDecoder.decodeObjectForKey(RateMeNSCoderKeys.Delegate.toRaw()) as? RateMeDelegate
+        self.delegate = aDecoder.decodeObjectForKey(RateMeNSCoderKeys.Delegate.toRaw()) as RateMeDelegate?
 
         super.init(coder: aDecoder)
     }
