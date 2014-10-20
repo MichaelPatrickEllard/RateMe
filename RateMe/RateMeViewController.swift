@@ -75,15 +75,15 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
 
             let defaults = NSUserDefaults.standardUserDefaults()
             
-            let defaultsLastRatedVersion = defaults.objectForKey(RateMeUserDefaultsKeys.LastVersionRated.toRaw()) as String?
+            let defaultsLastRatedVersion = defaults.objectForKey(RateMeUserDefaultsKeys.LastVersionRated.rawValue) as String?
             
             //  Switch statements on tuples don't seem to like optionals. To make the code tidy, there has to be some string value for lastRatedVersion, even if it's an empty string. This doesn't feel Swift-like, and I would welcome suggestions about how to make it better.
             
             let lastRatedVersion = defaultsLastRatedVersion == nil ? "" : defaultsLastRatedVersion!
             
-            let responseValueFromDefaults = defaults.integerForKey(RateMeUserDefaultsKeys.LastRatingResponse.toRaw())
+            let responseValueFromDefaults = defaults.integerForKey(RateMeUserDefaultsKeys.LastRatingResponse.rawValue)
             
-            if let lastResponse = RateMeRatingResponse.fromRaw(responseValueFromDefaults) {
+            if let lastResponse = RateMeRatingResponse(rawValue: responseValueFromDefaults) {
             
                 switch (lastResponse, lastRatedVersion) {
                     
@@ -137,20 +137,20 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
 
     required init(coder aDecoder: NSCoder) {
         
-        self.rulesURL = aDecoder.decodeObjectOfClass(NSString.classForCoder(), forKey: RateMeNSCoderKeys.URLString.toRaw()) as String
-        self.appID = aDecoder.decodeObjectOfClass(NSString.classForCoder(), forKey: RateMeNSCoderKeys.AppID.toRaw()) as String
-        self.delegate = aDecoder.decodeObjectForKey(RateMeNSCoderKeys.Delegate.toRaw()) as RateMeDelegate?
+        self.rulesURL = aDecoder.decodeObjectOfClass(NSString.classForCoder(), forKey: RateMeNSCoderKeys.URLString.rawValue) as String
+        self.appID = aDecoder.decodeObjectOfClass(NSString.classForCoder(), forKey: RateMeNSCoderKeys.AppID.rawValue) as String
+        self.delegate = aDecoder.decodeObjectForKey(RateMeNSCoderKeys.Delegate.rawValue) as RateMeDelegate?
 
         super.init(coder: aDecoder)
     }
     
     override func encodeWithCoder(aCoder: NSCoder) {
         super.encodeWithCoder(aCoder)
-        aCoder.encodeObject(self.rulesURL, forKey: RateMeNSCoderKeys.URLString.toRaw())
-        aCoder.encodeObject(self.appID, forKey: RateMeNSCoderKeys.AppID.toRaw())
+        aCoder.encodeObject(self.rulesURL, forKey: RateMeNSCoderKeys.URLString.rawValue)
+        aCoder.encodeObject(self.appID, forKey: RateMeNSCoderKeys.AppID.rawValue)
         
         if let rmDelegate = delegate {
-            aCoder.encodeConditionalObject(rmDelegate, forKey: RateMeNSCoderKeys.Delegate.toRaw())
+            aCoder.encodeConditionalObject(rmDelegate, forKey: RateMeNSCoderKeys.Delegate.rawValue)
         }
     }
     
@@ -259,9 +259,9 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
         
         let versionString = NSBundle.mainBundle().objectForInfoDictionaryKey("CFBundleShortVersionString") as String
         
-        defaults.setObject(NSDate(), forKey: RateMeUserDefaultsKeys.DateOfLastRating.toRaw())
-        defaults.setObject(versionString, forKey: RateMeUserDefaultsKeys.LastVersionRated.toRaw())
-        defaults.setInteger(response.toRaw(), forKey: RateMeUserDefaultsKeys.LastRatingResponse.toRaw())
+        defaults.setObject(NSDate(), forKey: RateMeUserDefaultsKeys.DateOfLastRating.rawValue)
+        defaults.setObject(versionString, forKey: RateMeUserDefaultsKeys.LastVersionRated.rawValue)
+        defaults.setInteger(response.rawValue, forKey: RateMeUserDefaultsKeys.LastRatingResponse.rawValue)
         
     }
     
@@ -271,7 +271,7 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
         
         let defaults = NSUserDefaults.standardUserDefaults()
         
-        if let lastResponseDate = defaults.objectForKey(RateMeUserDefaultsKeys.DateOfLastRating.toRaw()) as? NSDate {
+        if let lastResponseDate = defaults.objectForKey(RateMeUserDefaultsKeys.DateOfLastRating.rawValue) as? NSDate {
             
             if NSDate().timeIntervalSinceDate(lastResponseDate) > requiredTimeInterval {
                 
