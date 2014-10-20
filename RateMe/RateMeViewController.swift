@@ -192,14 +192,15 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
         //      The URL used above is the best choice for iOS 7.1 and iOS 8.
         //TODO: For iOS 7.0, this URL is recommended: "itms-apps://itunes.apple.com/app/id#########"
         
-        let ratingURL = NSURL(string: ratingAddress)
+        if let ratingURL = NSURL(string: ratingAddress) {
         
-        UIApplication.sharedApplication().openURL(ratingURL)
-        
-        recordRatingResponse(.Rated)
-        dismiss()
-        
-        delegate?.rated?()
+            UIApplication.sharedApplication().openURL(ratingURL)
+            
+            recordRatingResponse(.Rated)
+            dismiss()
+            
+            delegate?.rated?()
+        }
     }
     
     @IBAction func askLater() {
@@ -233,20 +234,22 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
                 
             default:
                 
-                //  If we're starting a new rules request, let's forget about the results of any previous requests.
+                if let url = NSURL(string:rulesURL) {
+                
+                    //  If we're starting a new rules request, let's forget about the results of any previous requests.
+                
+                    rulesStatus = .RequestInProgress
+                    rulesAllowRating = nil
+                    rulesReceivedTimestamp = nil
+                    
+                    //  Setting a shorter than usual timeout here.  We don't want to frustrate the user.  If we can't get the data in 5 seconds, we dont' want to bother them with a rating link which might take longer than that to load.
+                    
+                    let urlRequest = NSURLRequest(URL: url, cachePolicy: .ReloadIgnoringLocalCacheData, timeoutInterval: 5)
+                    
+                    let connection = NSURLConnection(request: urlRequest, delegate: self)
+                    
+                }
             
-                rulesStatus = .RequestInProgress
-                rulesAllowRating = nil
-                rulesReceivedTimestamp = nil
-                
-                let url = NSURL.URLWithString(rulesURL)
-                
-                //  Setting a shorter than usual timeout here.  We don't want to frustrate the user.  If we can't get the data in 5 seconds, we dont' want to bother them with a rating link which might take longer than that to load.
-                
-                let urlRequest = NSURLRequest(URL: url, cachePolicy: .ReloadIgnoringLocalCacheData, timeoutInterval: 5)
-                
-                let connection = NSURLConnection(request: urlRequest, delegate: self)
-                
         }
         
     }
