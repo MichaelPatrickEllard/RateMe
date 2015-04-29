@@ -71,11 +71,11 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
         
         if rulesStatus == .RulesReceived && rulesAllowRating == .Some(true) {
             
-            let currentVersion = NSBundle.mainBundle().objectForInfoDictionaryKey("CFBundleShortVersionString") as String
+            let currentVersion = NSBundle.mainBundle().objectForInfoDictionaryKey("CFBundleShortVersionString") as! String
 
             let defaults = NSUserDefaults.standardUserDefaults()
             
-            let defaultsLastRatedVersion = defaults.objectForKey(RateMeUserDefaultsKeys.LastVersionRated.rawValue) as String?
+            let defaultsLastRatedVersion = defaults.objectForKey(RateMeUserDefaultsKeys.LastVersionRated.rawValue) as? String
             
             //  Switch statements on tuples don't seem to like optionals. To make the code tidy, there has to be some string value for lastRatedVersion, even if it's an empty string. This doesn't feel Swift-like, and I would welcome suggestions about how to make it better.
             
@@ -137,9 +137,9 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
 
     required init(coder aDecoder: NSCoder) {
         
-        self.rulesURL = aDecoder.decodeObjectOfClass(NSString.classForCoder(), forKey: RateMeNSCoderKeys.URLString.rawValue) as String
-        self.appID = aDecoder.decodeObjectOfClass(NSString.classForCoder(), forKey: RateMeNSCoderKeys.AppID.rawValue) as String
-        self.delegate = aDecoder.decodeObjectForKey(RateMeNSCoderKeys.Delegate.rawValue) as RateMeDelegate?
+        self.rulesURL = aDecoder.decodeObjectOfClass(NSString.classForCoder(), forKey: RateMeNSCoderKeys.URLString.rawValue) as! String
+        self.appID = aDecoder.decodeObjectOfClass(NSString.classForCoder(), forKey: RateMeNSCoderKeys.AppID.rawValue) as! String
+        self.delegate = aDecoder.decodeObjectForKey(RateMeNSCoderKeys.Delegate.rawValue) as? RateMeDelegate
 
         super.init(coder: aDecoder)
     }
@@ -260,7 +260,7 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
         
         let device = UIDevice.currentDevice()
         
-        let versionString = NSBundle.mainBundle().objectForInfoDictionaryKey("CFBundleShortVersionString") as String
+        let versionString = NSBundle.mainBundle().objectForInfoDictionaryKey("CFBundleShortVersionString") as! String
         
         defaults.setObject(NSDate(), forKey: RateMeUserDefaultsKeys.DateOfLastRating.rawValue)
         defaults.setObject(versionString, forKey: RateMeUserDefaultsKeys.LastVersionRated.rawValue)
@@ -290,21 +290,21 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
     
     // MARK: NSURLConnectionDelegate and NSURLConnectionDataDelegate Methods
     
-    func connection(connection: NSURLConnection!,
-        didReceiveResponse response: NSURLResponse!) {
+    func connection(connection: NSURLConnection,
+        didReceiveResponse response: NSURLResponse) {
             
             rulesData = NSMutableData()
             
     }
     
     
-    func connection(connection: NSURLConnection!,
-        didReceiveData data: NSData!)
+    func connection(connection: NSURLConnection,
+        didReceiveData data: NSData)
     {
         rulesData.appendData(data)
     }
     
-    func connectionDidFinishLoading(connection: NSURLConnection!) {
+    func connectionDidFinishLoading(connection: NSURLConnection) {
         
         var error : NSError?
         
@@ -312,11 +312,11 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
         
         if error == nil {
             
-            if let rulesDict = jsonObject as? NSDictionary {
+            if let rulesDict = jsonObject as? [NSObject : AnyObject] {
                 
                 if let versionRules = rulesDict["shouldRateByAppVersion"] as? Dictionary<String, Bool> {
             
-                    let appVersionString = NSBundle.mainBundle().objectForInfoDictionaryKey("CFBundleShortVersionString") as String
+                    let appVersionString = NSBundle.mainBundle().objectForInfoDictionaryKey("CFBundleShortVersionString") as! String
                     
                     //  If we have a rule for this specific version, use it.  Otherwise use the default rule.
             
@@ -365,8 +365,8 @@ class RateMeViewController: UIViewController, NSURLConnectionDataDelegate {
         
     }
     
-    func connection(connection: NSURLConnection!,
-        didFailWithError error: NSError!) {
+    func connection(connection: NSURLConnection,
+        didFailWithError error: NSError) {
             
             rulesStatus = .RequestFailed
 
